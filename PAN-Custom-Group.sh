@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# AUTHOR: Engin YÜCE <enginy88@gmail.com>
+# AUTHOR: Engin YUCE <enginy88@gmail.com>
 # DESCRIPTION: Shell script for generating XML request and calling XML API to update custom user-group mapping on PANOS.
-# VERSION: 1.0
-# LICENSE: Copyright 2019 Engin YÜCE. Licensed under the Apache License, Version 2.0.
+# VERSION: 1.1
+# LICENSE: Copyright 2019 Engin YUCE. Licensed under the Apache License, Version 2.0.
 
 
 USER_DOMAIN_PREFIX="DOMAIN"
@@ -104,14 +104,14 @@ _getAPIKey()
 		echo "Error on curl response, check the PAN credentials, exiting!" ; exit 1
 	fi
 	KEY=$(echo "$CALL" | sed -n 's/.*<key>\([a-zA-Z0-9=]*\)<\/key>.*/\1/p')
-	if [[ $? != 0 ]] || [[ X"$KEY" != X"" ]]
+	if [[ $? != 0 ]] && [[ X"$KEY" != X"" ]]
 	then
 		echo "Error on curl response, cannot parse API key, exiting!" ; exit 1
 	fi
 }
 
 
-_callAPIKey()
+_callXMLAPI()
 {
 	local CALL=$(curl -F key=$KEY --form file=@$GENERATED_XML_FILENAME --insecure -m 5 "https://$PAN_IP/api/?type=user-id&vsys=$PAN_VSYS" 2>/dev/null)
 	if [[ $? != 0 || -z "$CALL" ]]
@@ -165,7 +165,7 @@ _main()
 	_generateXMLFooter
 	(( LOOP_COUNT == 0)) && { echo "Error on iterating group files, check the directory content, exiting!" ; exit 1 ; }
 	_getAPIKey
-	_callAPIKey
+	_callXMLAPI
 }
 
 _main

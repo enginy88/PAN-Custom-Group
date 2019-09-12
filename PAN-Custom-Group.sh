@@ -48,7 +48,7 @@ _processInput()
 		echo "Duplicate user(s) found and fixed in group '$1':"
 		echo "$DUPLICATES"
 	fi
-	cat tempfile | sort | uniq -ud | tr -d '\r' > $1
+	cat tempfile | sort | uniq -iu | tr -d '\r' > $1
 	rm -f tempfile 2>/dev/null
 }
 

@@ -2,7 +2,7 @@
 
 # AUTHOR: Engin YUCE <enginy88@gmail.com>
 # DESCRIPTION: Shell script for generating XML request and calling XML API to update custom user-group mapping on PANOS.
-# VERSION: 1.1
+# VERSION: 1.2
 # LICENSE: Copyright 2019 Engin YUCE. Licensed under the Apache License, Version 2.0.
 
 
@@ -18,16 +18,6 @@ GENERATED_XML_FILENAME="Generated-Custom-User-Group-Mappings.xml"
 # BELOW THIS LINE, THERE BE DRAGONS!
 
 
-_checkWorkingDirectory()
-{
-	ls | grep $(basename $0) &>/dev/null
-	if [[ $? != 0 ]]
-	then
-		echo "Run this script from original location, exiting!" ; exit 1
-	fi
-}
-
-
 _checkVariables()
 {
 	[[ ! -z "$USER_DOMAIN_PREFIX" ]] || { echo "Script variable is missing, exiting!" ; exit 1 ; }
@@ -38,6 +28,27 @@ _checkVariables()
 	[[ ! -z "$INPUT_PATH" ]] || { echo "Script variable is missing, exiting!" ; exit 1 ; }
 	[[ ! -z "$GENERATED_XML_FILENAME" ]] || { echo "Script variable is missing, exiting!" ; exit 1 ; }
 }
+
+
+_checkWorkingDirectory()
+{
+	ls | grep $(basename $0) &>/dev/null
+	if [[ $? != 0 ]]
+	then
+		echo "Run this script from original location, exiting!" ; exit 1
+	fi
+}
+
+
+_checkCurlAvailable()
+{
+	curl --version &>/dev/null
+	if [[ $? != 0 ]]
+	then
+		echo "Error on finding curl, install the curl utility, exiting!" ; exit 1
+	fi
+}
+
 
 _processInput()
 {
@@ -128,8 +139,9 @@ _callXMLAPI()
 
 _main()
 {
-	_checkWorkingDirectory
 	_checkVariables
+	_checkWorkingDirectory
+	_checkCurlAvailable
 	_generateXMLHeader
 	if [[ ! -d $INPUT_PATH || ! -x $INPUT_PATH ]]
 	then
@@ -166,5 +178,5 @@ _main()
 	_callXMLAPI
 }
 
-_main
 
+_main

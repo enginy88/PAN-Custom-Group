@@ -11,7 +11,7 @@ PAN_USERNAME="admin"
 PAN_PASSWORD="admin"
 PAN_IP="1.2.3.4"
 PAN_VSYS="vsys1"
-INPUT_PATH="User-Group-Bindings"
+INPUT_PATH="./User-Group-Bindings"
 GENERATED_XML_FILENAME="Generated-Custom-User-Group-Mappings.xml"
 
 

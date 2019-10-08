@@ -2,7 +2,7 @@
 
 # AUTHOR: Engin YUCE <enginy88@gmail.com>
 # DESCRIPTION: Shell script for generating XML request and calling XML API to update custom user-group mapping on PANOS.
-# VERSION: 1.2
+# VERSION: 1.3
 # LICENSE: Copyright 2019 Engin YUCE. Licensed under the Apache License, Version 2.0.
 
 
@@ -59,7 +59,7 @@ _processInput()
 		echo "Duplicate user(s) found and fixed in group '$1':"
 		echo "$DUPLICATES"
 	fi
-	cat tempfile | sort | uniq -iu | tr -d '\r' > $1
+	cat tempfile | sort | uniq -i | tr -d '\r' > $1
 	rm -f tempfile 2>/dev/null
 }
 
@@ -108,13 +108,13 @@ _getAPIKey()
 	then
 		echo "Error on curl call, check the IP, exiting!" ; exit 1
 	fi
-	echo "$CALL" | grep -F -e "response" -e "status" -e "success" &>/dev/null
+	echo "$CALL" | grep -F "response" | grep -F "status" | grep -F "success" &>/dev/null
 	if [[ $? != 0 ]]
 	then
 		echo "Error on curl response, check the PAN credentials, exiting!" ; exit 1
 	fi
 	KEY=$(echo "$CALL" | sed -n 's/.*<key>\([a-zA-Z0-9=]*\)<\/key>.*/\1/p')
-	if [[ $? != 0 ]] && [[ X"$KEY" != X"" ]]
+	if [[ $? != 0 || X"$KEY" == X"" ]]
 	then
 		echo "Error on curl response, cannot parse API key, exiting!" ; exit 1
 	fi
@@ -128,7 +128,7 @@ _callXMLAPI()
 	then
 		echo "Error on curl call, check the IP, exiting!" ; exit 1
 	fi
-	echo "$CALL" | grep -F -e "response" -e "status" -e "success" &>/dev/null
+	echo "$CALL" | grep -F "response" | grep -F "status" | grep -F "success" &>/dev/null
 	if [[ $? != 0 ]]
 	then
 		echo "Error on curl response, check the target VSYS, exiting!" ; exit 1
@@ -173,7 +173,7 @@ _main()
 	done
 	cd - &> /dev/null
 	_generateXMLFooter
-	(( LOOP_COUNT == 0)) && { echo "Error on iterating group files, check the directory content, exiting!" ; exit 1 ; }
+	(( LOOP_COUNT != 0)) || { echo "Error on iterating group files, check the directory content, exiting!" ; exit 1 ; }
 	_getAPIKey
 	_callXMLAPI
 }
